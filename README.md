@@ -20,27 +20,27 @@ Usage
 
 Insert newline after each '(' and ')' in current line.
 
-    :LineBreakAt ( )
+    :Breakin ( )
 
 Same, in lines 10 to 20 inclusive.
 
-    :10,20LineBreakAt ( )
+    :10,20Breakin ( )
 
 Same, whole buffer.
 
-    :%LineBreakAt ( )
+    :%Breakin ( )
 
 Insert newline before each '(' and ')' in current line.
 
-    :LineBreakAt! ( )
+    :Breakin! ( )
 
 Insert newline after each occurrence of last-used search pattern.
 
-    :%LineBreakAt
+    :%Breakin
 
 Insert newline before each occurrence of last-used search pattern.
 
-    :%LineBreakAt!
+    :%Breakin!
 
 
 License

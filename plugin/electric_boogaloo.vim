@@ -2,8 +2,8 @@
 " If no arguments, use previous search.
 " Original source: http://vim.wikia.com/wiki/Add_a_newline_after_given_patterns
 
-command! -bang -nargs=* -range LineBreakAt <line1>,<line2>call LineBreakAt('<bang>', <f-args>)
-function! LineBreakAt(bang, ...) range
+command! -bang -nargs=* -range Breakin <line1>,<line2>call Breakin('<bang>', <f-args>)
+function! Breakin(bang, ...) range
   let save_search = @/
   if empty(a:bang)
     let before = ''
