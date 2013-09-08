@@ -1,1 +1,66 @@
-Stub
+Docs from http://vim.wikia.com/wiki/Add_a_newline_after_given_patterns
+
+==Using a script==
+The following script defines a user command to automate the insertion of line breaks. Save the script in a file called <code>linebreakat.vim</code>.
+<pre>
+" Insert a newline after each specified string (or before if use '!').
+" If no arguments, use previous search.
+command! -bang -nargs=* -range LineBreakAt <line1>,<line2>call LineBreakAt('<bang>', <f-args>)
+function! LineBreakAt(bang, ...) range
+  let save_search = @/
+  if empty(a:bang)
+    let before = ''
+    let after = '\ze.'
+    let repl = '&\r'
+  else
+    let before = '.\zs'
+    let after = ''
+    let repl = '\r&'
+  endif
+  let pat_list = map(deepcopy(a:000), "escape(v:val, '/\\.*$^~[')")
+  let find = empty(pat_list) ? @/ : join(pat_list, '\|')
+  let find = before . '\%(' . find . '\)' . after
+  " Example: 10,20s/\%(arg1\|arg2\|arg3\)\ze./&\r/ge
+  execute a:firstline . ',' . a:lastline . 's/'. find . '/' . repl . '/ge'
+  let @/ = save_search
+endfunction
+</pre>
+
+In Vim, enter the command <code>:so linebreakat.vim</code> to source the script. If you want the script sourced automatically whenever Vim starts, place the file in directory <code>~/.vim/plugin</code> (Unix) or <code>$HOME/vimfiles/plugin</code> (Windows). On Windows, enter the following command to see the name of the required directory (which you may need to create):
+<pre>
+:echo expand('$HOME/vimfiles/plugin')
+</pre>
+
+;Usage examples
+{| class="cleartable"
+| <code>:LineBreakAt ( )</code> || Insert newline after each '(' and ')' in current line.
+|-
+| <code>:10,20LineBreakAt ( )</code> || Same, in lines 10 to 20 inclusive.
+|-
+| <code>:%LineBreakAt ( )</code> || Same, whole buffer.
+|-
+| <code>:LineBreakAt! ( )</code> || Insert newline before each '(' and ')' in current line.
+|-
+| <code>:%LineBreakAt</code> || Insert newline after each occurrence of last-used search pattern.
+|-
+| <code>:%LineBreakAt!</code> || Insert newline before each occurrence of last-used search pattern.
+|}
+
+You do not need to type the entire command; depending on your system, you may find that typing <code>:L</code> is sufficient (press the Tab key to expand <code>L</code> to see other commands that start with that text {{help|'wildchar'}}).
+
+The arguments to <code>LineBreakAt</code> are the strings that you want to find; they are not search patterns. For example, <code>:%LineBreakAt! *</code> will insert a newline before each asterisk in the whole buffer (the command escapes the <code>*</code> by preceding it with a backslash, so the asterisk has no special meaning).
+
+If you want to include a space in the text, type a backslash before the space. For example, <code>:%LineBreakAt! The\ rain</code> will insert a newline before each occurrence of "The rain" in the whole buffer.
+
+After searching for a pattern (for example <code>\<t\w*e\></code> to find all words starting with '<code>t</code>' and ending with '<code>e</code>'), using <code>:%LineBreakAt!</code> (with no arguments) will insert a newline before each of the search hits, and using <code>:%LineBreakAt</code> will insert a newline after each of the search hits.
+
+===Explanation===
+The <code>:command</code> line defines a user command (<code>LineBreakAt</code>) that calls a function with the same name. The first argument to the function (<code>bang</code>) will be '<code>!</code>' if an exclamation mark was typed after the command, and will be an empty string otherwise. The arguments typed after the command (one or more strings separated by whitespace) are passed as the <code>...</code> in the function. {{help|<f-args>|&lt;f-args&gt;}}
+
+The function converts the <code>...</code> arguments (accessed as the list <code>a:000</code>) by escaping the characters that have a special meaning when searching, for example, <code>/</code> is replaced with <code>\/</code> because the substitute command uses slash as a delimiter. The list of arguments is copied with <code>deepcopy()</code> (because arguments to a Vim function cannot be changed), then <code>map()</code> processes each argument (<code>v:val</code>) with the <code>escape()</code> function; the result is copied into <code>pat_list</code> (a list of the individual escaped search patterns).
+
+A search pattern is then formed in the <code>find</code> variable. If <code>bang</code> is empty and there are three arguments, <code>arg1 arg2 arg3</code>, the pattern will be <code>\%(arg1\|arg2\|arg3\)\ze.</code>. Each argument is separated with <code>\|</code> (''or''), and the result is grouped (<code>\%(...\)</code>) so that what follows applies to the whole group, rather than to <code>arg3</code>. The <code>.</code> at the end requires that a character that is not a newline follows the pattern (so another newline will not be inserted). The <code>\ze</code> marks the end of the search hit, so the newline will be inserted before the character that follows the pattern.
+
+If <code>bang</code> is empty, the replacement text (<code>repl</code>) is <code>&\r</code> (the search hit then newline), or is <code>\r&</code> (a newline then the search hit), otherwise.
+
+The <code>:execute</code> command performs a substitute (<code>:s///ge</code>) on the given range of lines (by default, the current line; otherwise, as specified). The <code>g</code> flag (global) replaces all occurrences on each specified line, and the <code>e</code> flag prevents an error message being displayed if no matches are found.

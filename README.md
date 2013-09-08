@@ -5,16 +5,42 @@ electric_boogaloo.vim
 
 electric_boogaloo is designed to make [breakin'][1] long lines faster in vim.
 
+Plugin is a direct copy of [this script][2] from the Vim wiki.
+
 Installation
 ------------
 
 Using Vundle:
 
-    $ echo "Bundle 'adarsh/electric_boogaloo.vim'" >> ~/.vimrc 
+    $ echo "Bundle 'adarsh/electric_boogaloo.vim'" >> ~/.vimrc
     $ vim +BundleInstall
 
 Usage
 -----
+
+Insert newline after each '(' and ')' in current line.
+
+    :LineBreakAt ( )
+
+Same, in lines 10 to 20 inclusive.
+
+    :10,20LineBreakAt ( )
+
+Same, whole buffer.
+
+    :%LineBreakAt ( )
+
+Insert newline before each '(' and ')' in current line.
+
+    :LineBreakAt! ( )
+
+Insert newline after each occurrence of last-used search pattern.
+
+    :%LineBreakAt
+
+Insert newline before each occurrence of last-used search pattern.
+
+    :%LineBreakAt!
 
 
 License
@@ -24,3 +50,4 @@ Copyright (c) Adarsh Pandit.  Distributed under the same terms as Vim itself.
 See `:help license`.
 
 [1]: http://www.imdb.com/title/tt0086999/
+[2]: http://vim.wikia.com/wiki/Add_a_newline_after_given_patterns
